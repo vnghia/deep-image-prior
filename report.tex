@@ -78,6 +78,7 @@
 \usepackage{subfig}
 \usepackage[french]{babel}
 \usepackage{csquotes}
+\usepackage[backend=biber]{biblatex}
 \setmonofont{JetBrains Mono}[Contextuals=Alternate]
 \floatplacement{figure}{H}
 \lstset{ 
@@ -113,6 +114,8 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
+\usepackage[]{biblatex}
+\addbibresource{references.bib}
 
 \author{}
 \date{\vspace{-2.5em}}
@@ -152,5 +155,7 @@ VO Van Nghia\\
 \doublespacing
 
 
+
+\printbibliography
 
 \end{document}
