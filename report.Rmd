@@ -22,6 +22,9 @@ output:
       in_header: preamble.tex
       before_body: cover.tex
 ---
+```{r setup, include=F}
+library(reticulate)
+```
 
 # Introduction
 
