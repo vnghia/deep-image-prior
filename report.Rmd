@@ -1,8 +1,12 @@
 ---
 fontsize: 11pt
-classoption: xcolor = usenames,dvipsnames
+classoption:
+  - dvipsnames
 bibliography: references.bib
 link-citations: true
+biblio-style: alphabetic
+biblatexoptions: 
+  - backend=biber
 output:
   bookdown::pdf_document2:
     citation_package: biblatex
@@ -23,7 +27,7 @@ output:
 
 Réseau neuronal convolutif (en anglais ***CNN***) est actuellement l'une des techniques les plus connues dans les problèmes de reconstruction d'image inverse. Il s'est avéré efficace dans un grand nombre de tâches, y compris le débruitage d'image, la super-résolution d'image et la reconstruction d'images avec perte.
 
-La puissance de cette architecture est attribuée à sa capacité à apprendre à partir de nombreux grands ensembles d'images. Cependant, [-@2007.02471; -@1711.10925] et de nombreux autres travaux ont démontré que l'architecture d'un CNN peut agir comme un préalable suffisamment fort pour permettre la reconstruction d'image, même sans aucune donnée d'apprentissage. Plus précisément, les réseaux non formés fonctionnent bien pour le débruitage de l'image [-@2007.02471], l'acquisition comprimée [-@1806.06438] et même pour la reconstruction de vidéos [-@1910.01684].
+La puissance de cette architecture est attribuée à sa capacité à apprendre à partir de nombreux grands ensembles d'images. Cependant, [@2007.02471; @1711.10925] et de nombreux autres travaux ont démontré que l'architecture d'un CNN peut agir comme un préalable suffisamment fort pour permettre la reconstruction d'image, même sans aucune donnée d'apprentissage. Plus précisément, les réseaux non formés fonctionnent bien pour le débruitage de l'image [@2007.02471], l'acquisition comprimée [@1806.06438] et même pour la reconstruction de vidéos [@1910.01684].
 
 Dans ce travail, nous nous concentrerons sur cette technique (***Deep Image Prior***). Tout d'abord, nous allons examiner quelques exemples. En second lieu, nous approfondissons le principe sous-jacent de celui-ci à travers l'exemple précédent. Enfin, nous expérimenterons ce que nous venons de présenter ci-dessus et ferons quelques études complémentaires.
 

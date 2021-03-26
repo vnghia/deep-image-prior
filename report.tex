@@ -4,7 +4,7 @@
 %
 \documentclass[
   11pt,
-  xcolor = usenames,dvipsnames]{article}
+  dvipsnames]{article}
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
 \usepackage{iftex}
@@ -78,7 +78,6 @@
 \usepackage{subfig}
 \usepackage[french]{babel}
 \usepackage{csquotes}
-\usepackage[backend=biber]{biblatex}
 \setmonofont{JetBrains Mono}[Contextuals=Alternate]
 \floatplacement{figure}{H}
 \lstset{ 
@@ -114,7 +113,7 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\usepackage[]{biblatex}
+\usepackage[style=alphabetic,backend=biber]{biblatex}
 \addbibresource{references.bib}
 
 \author{}
@@ -158,7 +157,7 @@ VO Van Nghia\\
 
 Réseau neuronal convolutif (en anglais \textbf{\emph{CNN}}) est actuellement l'une des techniques les plus connues dans les problèmes de reconstruction d'image inverse. Il s'est avéré efficace dans un grand nombre de tâches, y compris le débruitage d'image, la super-résolution d'image et la reconstruction d'images avec perte.
 
-La puissance de cette architecture est attribuée à sa capacité à apprendre à partir de nombreux grands ensembles d'images. Cependant, \autocite*{2007.02471,1711.10925} et de nombreux autres travaux ont démontré que l'architecture d'un CNN peut agir comme un préalable suffisamment fort pour permettre la reconstruction d'image, même sans aucune donnée d'apprentissage. Plus précisément, les réseaux non formés fonctionnent bien pour le débruitage de l'image \autocite*{2007.02471}, l'acquisition comprimée \autocite*{1806.06438} et même pour la reconstruction de vidéos \autocite*{1910.01684}.
+La puissance de cette architecture est attribuée à sa capacité à apprendre à partir de nombreux grands ensembles d'images. Cependant, \autocite{2007.02471,1711.10925} et de nombreux autres travaux ont démontré que l'architecture d'un CNN peut agir comme un préalable suffisamment fort pour permettre la reconstruction d'image, même sans aucune donnée d'apprentissage. Plus précisément, les réseaux non formés fonctionnent bien pour le débruitage de l'image \autocite{2007.02471}, l'acquisition comprimée \autocite{1806.06438} et même pour la reconstruction de vidéos \autocite{1910.01684}.
 
 Dans ce travail, nous nous concentrerons sur cette technique (\textbf{\emph{Deep Image Prior}}). Tout d'abord, nous allons examiner quelques exemples. En second lieu, nous approfondissons le principe sous-jacent de celui-ci à travers l'exemple précédent. Enfin, nous expérimenterons ce que nous venons de présenter ci-dessus et ferons quelques études complémentaires.
 
