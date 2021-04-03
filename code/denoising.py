@@ -7,11 +7,19 @@ import skip
 import utils
 
 
-def denoising_psnr_original(original):
-    def metrics(_, y_pred):
-        return tf.image.psnr(y_pred, original, max_val=1.0)
+def build_metrics_psnr_original(original):
+    def psnr_original(_, y_pred):
+        return tf.image.psnr(original, y_pred, max_val=1.0)
 
-    return metrics
+    return psnr_original
+
+
+def denoising_input_generator(net_input, noisy, noise_std):
+    while True:
+        yield (
+            tf.add(net_input, tf.random.normal(net_input.shape, stddev=noise_std)),
+            noisy,
+        )
 
 
 def build_denoising_model(original, summary=True, plot=False):
@@ -44,15 +52,14 @@ def build_denoising_model(original, summary=True, plot=False):
     model.compile(
         loss="mse",
         optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
-        metrics=[PSNR, denoising_psnr_original(original)],
+        metrics=[PSNR, build_metrics_psnr_original(original)],
     )
     return model
 
 
 def train_denoising_model(model, net_input, noisy, epochs):
     model.fit(
-        x=net_input,
-        y=noisy,
+        x=denoising_input_generator(net_input, noisy, 1 / 30),
         epochs=epochs,
         batch_size=1,
         steps_per_epoch=1,
@@ -63,11 +70,11 @@ def train_denoising_model(model, net_input, noisy, epochs):
 
 if __name__ == "__main__":
     original = utils.imread_float("res/denoising/input.png")
+    noisy = utils.get_noisy_image(original, 25 / 255)
     original = np.expand_dims(original, axis=0)
-    noisy = utils.imread_float("res/denoising/noisy.png")
     noisy = np.expand_dims(noisy, axis=0)
     model = build_denoising_model(original, summary=False, plot=True)
-    net_input = utils.get_noise(
-        input_shape=(1, original.shape[1], original.shape[2], 32)
+    net_input = tf.random.uniform(
+        shape=(1, original.shape[1], original.shape[2], 32), maxval=1 / 10
     )
     model = train_denoising_model(model, net_input, noisy, 3000)
