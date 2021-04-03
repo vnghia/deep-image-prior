@@ -1,42 +1,25 @@
-import numpy as np
+import os
+
 import tensorflow as tf
+
 import utils
 
 
-class PredictionCallback(tf.keras.callbacks.ProgbarLogger):
-    def __init__(self, net_input, step=100, show_logs=False):
+class SavePredictions(tf.keras.callbacks.Callback):
+    def __init__(self, input_net, step=100, rootdir=None, plot=False):
         super().__init__()
-        if len(net_input.shape) == 3:
-            net_input = np.expand_dims(net_input, axis=0)
-        self.net_input = net_input
-        self.outputs = []
+        self.input_net = input_net
+        self.outputs_net = []
         self.step = step
-        self.show_logs = show_logs
-
-    def on_train_begin(self, logs=None):
-        if self.show_logs:
-            super().on_train_begin(logs)
-
-    def on_train_end(self, logs=None):
-        if self.show_logs:
-            super().on_train_end(logs)
-
-    def on_epoch_begin(self, epoch, logs=None):
-        if self.show_logs:
-            super().on_epoch_begin(epoch, logs)
+        self.rootdir = rootdir
+        self.plot = plot
 
     def on_epoch_end(self, epoch, logs=None):
-        if self.show_logs:
-            super().on_epoch_end(epoch, logs)
         if epoch % self.step != 0:
             return
-        self.outputs.append(np.squeeze(self.model(self.net_input), axis=0))
-        # utils.plot_image(self.outputs[-1], figsize=(5, 5))
-
-    def on_train_batch_begin(self, batch, logs=None):
-        if self.show_logs:
-            super().on_train_batch_begin(batch, logs)
-
-    def on_train_batch_end(self, batch, logs=None):
-        if self.show_logs:
-            super().on_train_batch_end(batch, logs)
+        result = tf.squeeze(self.model(self.input_net), axis=0)
+        if self.rootdir is not None:
+            utils.save_img(os.path.join(self.rootdir, f"epoch_{epoch}.png"), result)
+        self.outputs_net.append(result)
+        if self.plot:
+            utils.plot_img(result, ncols=1)

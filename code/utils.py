@@ -1,8 +1,7 @@
-import matplotlib.image as mpimg
-import matplotlib.pyplot as plt
-import numpy as np
-import tensorflow as tf
 import logging
+
+import matplotlib.pyplot as plt
+import tensorflow as tf
 
 logging.basicConfig(
     format="%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
@@ -12,32 +11,44 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def imread_float(fname):
-    return mpimg.imread(fname)
+def convert_data_format(data_format, to_tf_format=True):
+    if not to_tf_format and data_format == "NHWC":
+        return "channels_last"
+    elif not to_tf_format and data_format == "NCHW":
+        return "channels_first"
+    elif to_tf_format and data_format == "channels_last":
+        return "NHWC"
+    elif to_tf_format and data_format == "channels_first":
+        return "NCHW"
 
 
-def plot_image(image, figsize=(4, 2)):
-    plt.figure(figsize=figsize)
-    if len(image.shape) == 4:
-        image = np.squeeze(image, axis=0)
-    plt.imshow(image)
-    plt.show()
+def load_img(path, data_format=None, dtype=tf.float32):
+    data_format = convert_data_format(data_format, False)
+    img = tf.keras.preprocessing.image.load_img(path)
+    img = tf.keras.preprocessing.image.img_to_array(img, data_format)
+    return tf.image.convert_image_dtype(img, dtype)
 
 
-def plot_images(images, rows=1, cols=1, figsize=(4, 2)):
-    _, ax = plt.subplots(nrows=rows, ncols=cols, figsize=figsize)
-    for ind, image in enumerate(images):
-        if len(image.shape) == 4:
-            image = np.squeeze(image, axis=0)
-        ax.ravel()[ind].imshow(image)
-        ax.ravel()[ind].set_axis_off()
+def save_img(path, img, data_format=None):
+    tf.keras.preprocessing.image.save_img(
+        path, img, data_format=convert_data_format(data_format, to_tf_format=False)
+    )
+
+
+def plot_img(imgs, nrows=None, ncols=3, figsize=(5, 5)):
+    if tf.rank(imgs) == 3:
+        imgs = [imgs]
+    nimgs = tf.shape(imgs)[0]
+    nrows = nimgs // ncols + 1 if nrows is None else nrows
+    _, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=figsize)
+    for i, img in enumerate(imgs):
+        axes.ravel()[i].imshow(img)
+        axes.ravel()[i].set_axis_off()
     plt.tight_layout()
     plt.show()
 
 
-def get_noisy_image(image, sigma):
-    return np.clip(np.add(image, np.random.normal(scale=sigma, size=image.shape)), 0, 1)
-
-
-def get_noise(input_shape, var=0.1):
-    return tf.random.uniform(shape=input_shape, maxval=var)
+def make_noisy_img(img, noise_std=25 / 255):
+    return tf.clip_by_value(
+        tf.add(img, tf.random.normal(tf.shape(img), stddev=noise_std)), 0, 1
+    )

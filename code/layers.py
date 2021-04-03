@@ -1,5 +1,4 @@
 import tensorflow as tf
-from utils import logger
 
 
 class Pad2D(tf.keras.layers.Layer):

@@ -1,29 +1,24 @@
 import functools
 
-import numpy as np
 import tensorflow as tf
 
 import callbacks
+import metrics
 import skip
 import utils
 
 
-def build_metrics_psnr_original(original):
-    def psnr_original(_, y_pred):
-        return tf.image.psnr(original, y_pred, max_val=1.0)
-
-    return psnr_original
-
-
-def denoising_input_generator(net_input, noisy, noise_std):
+def denoising_train_dataset_generator(x, y, noise_std=1 / 30):
     while True:
-        yield (
-            tf.add(net_input, tf.random.normal(net_input.shape, stddev=noise_std)),
-            noisy,
-        )
+        yield (tf.add(x, tf.random.normal(tf.shape(x), stddev=noise_std)), y)
 
 
-def build_denoising_model(original, summary=True, plot=False):
+def build_denoising_initial_input(input_img, input_depth, maxval=0.1):
+    size = tf.shape(input_img)[tf.rank(input_img) - 3 : tf.rank(input_img) - 1]
+    return tf.random.uniform((1, size[0], size[1], input_depth), 0, maxval)
+
+
+def build_denoising_model(summary=False, plot=None):
     model = skip.build_skip_net(
         32,
         3,
@@ -39,43 +34,31 @@ def build_denoising_model(original, summary=True, plot=False):
         model.summary(line_length=150)
     if plot:
         tf.keras.utils.plot_model(
-            model,
-            to_file="model.png",
-            show_shapes=True,
-            show_dtype=False,
-            show_layer_names=True,
-            rankdir="TB",
-            expand_nested=True,
-            dpi=192,
+            model, to_file=plot, show_shapes=True, expand_nested=True, dpi=192
         )
-    PSNR = functools.partial(tf.image.psnr, max_val=1.0)
-    functools.update_wrapper(PSNR, tf.image.psnr)
-    model.compile(
-        loss="mse",
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
-        metrics=[PSNR, build_metrics_psnr_original(original)],
-    )
-    return model
-
-
-def train_denoising_model(model, net_input, noisy, epochs):
-    model.fit(
-        x=denoising_input_generator(net_input, noisy, 1 / 30),
-        epochs=epochs,
-        batch_size=1,
-        steps_per_epoch=1,
-        callbacks=[callbacks.PredictionCallback(net_input, show_logs=True)],
-    )
     return model
 
 
 if __name__ == "__main__":
-    original = utils.imread_float("res/denoising/input.png")
-    noisy = utils.get_noisy_image(original, 25 / 255)
-    original = np.expand_dims(original, axis=0)
-    noisy = np.expand_dims(noisy, axis=0)
-    model = build_denoising_model(original, summary=False, plot=False)
-    net_input = tf.random.uniform(
-        shape=(1, original.shape[1], original.shape[2], 32), maxval=1 / 10
+    input_img = utils.load_img("res/denoising/input.png")
+    input_img = tf.expand_dims(input_img, axis=0)
+    noisy_img = utils.make_noisy_img(input_img)
+    input_net = build_denoising_initial_input(input_img, 32)
+
+    model = build_denoising_model()
+    model.compile(
+        loss="mse",
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
+        metrics=metrics.build_psnr_metrics(addition_imgs={"original": input_img}),
     )
-    model = train_denoising_model(model, net_input, noisy, 3000)
+
+    save_predictions_callback = callbacks.SavePredictions(
+        input_net, rootdir="res/denoising/train/"
+    )
+    model.fit(
+        x=denoising_train_dataset_generator(input_net, noisy_img),
+        epochs=3000,
+        steps_per_epoch=1,
+        callbacks=[save_predictions_callback],
+        verbose=2,
+    )

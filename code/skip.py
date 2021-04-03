@@ -1,7 +1,6 @@
-import layers
-import numpy as np
 import tensorflow as tf
-from utils import logger
+
+import layers
 
 
 def build_skip_net(
@@ -55,16 +54,20 @@ def build_skip_net(
 
     """
 
-    down_channels = np.full(levels, down_channels)
-    up_channels = np.full(levels, up_channels)
-    skip_channels = np.full(levels, skip_channels)
+    down_channels = tf.constant(down_channels, shape=levels)
+    up_channels = tf.constant(up_channels, shape=levels)
+    skip_channels = tf.constant(skip_channels, shape=levels)
 
-    down_sizes = np.full(levels, down_sizes)
-    up_sizes = np.full(levels, up_sizes)
-    skip_sizes = np.full(levels, skip_sizes)
+    down_sizes = tf.constant(down_sizes, shape=levels)
+    up_sizes = tf.constant(up_sizes, shape=levels)
+    skip_sizes = tf.constant(skip_sizes, shape=levels)
 
-    downsample_modes = np.full(levels, downsample_modes)
-    upsample_modes = np.full(levels, upsample_modes)
+    downsample_modes = (
+        tf.constant(downsample_modes, shape=levels, dtype=tf.string).numpy().astype(str)
+    )
+    upsample_modes = (
+        tf.constant(upsample_modes, shape=levels, dtype=tf.string).numpy().astype(str)
+    )
 
     inputs = tf.keras.layers.Input(shape=(None, None, input_channels))
 
