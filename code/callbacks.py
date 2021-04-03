@@ -31,7 +31,7 @@ class PredictionCallback(tf.keras.callbacks.ProgbarLogger):
         if epoch % self.step != 0:
             return
         self.outputs.append(np.squeeze(self.model(self.net_input), axis=0))
-        utils.plot_image(self.outputs[-1], figsize=(10, 10))
+        # utils.plot_image(self.outputs[-1], figsize=(5, 5))
 
     def on_train_batch_begin(self, batch, logs=None):
         if self.show_logs:

@@ -3,6 +3,7 @@ import functools
 import numpy as np
 import tensorflow as tf
 
+import callbacks
 import skip
 import utils
 
@@ -63,7 +64,7 @@ def train_denoising_model(model, net_input, noisy, epochs):
         epochs=epochs,
         batch_size=1,
         steps_per_epoch=1,
-        callbacks=[utils.PredictionCallback(net_input)],
+        callbacks=[callbacks.PredictionCallback(net_input, show_logs=True)],
     )
     return model
 
@@ -73,7 +74,7 @@ if __name__ == "__main__":
     noisy = utils.get_noisy_image(original, 25 / 255)
     original = np.expand_dims(original, axis=0)
     noisy = np.expand_dims(noisy, axis=0)
-    model = build_denoising_model(original, summary=False, plot=True)
+    model = build_denoising_model(original, summary=False, plot=False)
     net_input = tf.random.uniform(
         shape=(1, original.shape[1], original.shape[2], 32), maxval=1 / 10
     )
