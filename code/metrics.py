@@ -10,6 +10,9 @@ def build_psnr_metrics(with_y_true=True, addition_imgs=None):
 
         metrics.append(psnr)
 
+    if addition_imgs is None:
+        return metrics
+
     for name, img in addition_imgs.items():
         if tf.rank(img) == 3:
             img = tf.expand_dims(img, axis=0)
