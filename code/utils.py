@@ -12,14 +12,16 @@ logger = logging.getLogger(__name__)
 
 
 def convert_data_format(data_format, to_tf_format=True):
-    if not to_tf_format and data_format == "NHWC":
+    if not to_tf_format and (data_format == "NHWC" or data_format is None):
         return "channels_last"
-    elif not to_tf_format and data_format == "NCHW":
+    elif not to_tf_format and (data_format == "NCHW" or data_format is None):
         return "channels_first"
-    elif to_tf_format and data_format == "channels_last":
+    elif to_tf_format and (data_format == "channels_last" or data_format is None):
         return "NHWC"
-    elif to_tf_format and data_format == "channels_first":
+    elif to_tf_format and (data_format == "channels_first" or data_format is None):
         return "NCHW"
+    else:
+        return data_format
 
 
 def load_img(path, data_format=None, dtype=tf.float32):
@@ -35,9 +37,11 @@ def save_img(path, img, data_format=None):
     )
 
 
-def plot_img(imgs, nrows=None, ncols=3, figsize=(5, 5)):
+def plot_img(imgs, nrows=None, ncols=3, figsize=(5, 5), data_format=None):
     if tf.rank(imgs) == 3:
         imgs = tf.expand_dims(imgs, axis=0)
+    if convert_data_format(data_format) == "NCHW":
+        imgs = tf.transpose(imgs, [0, 2, 3, 1])
     nimgs = tf.shape(imgs)[0]
     nrows = int(tf.math.ceil(nimgs / ncols)) if nrows is None else nrows
     _, axes = plt.subplots(

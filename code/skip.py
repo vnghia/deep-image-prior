@@ -1,6 +1,7 @@
 import tensorflow as tf
 
 import layers
+import utils
 
 
 def build_skip_net(
@@ -19,6 +20,7 @@ def build_skip_net(
     use_sigmoid=True,
     use_bias=True,
     use_1x1up=True,
+    data_format=None,
     activations=tf.keras.layers.LeakyReLU,
 ):
     """Build an autoencoder network with skip connections.
@@ -53,6 +55,13 @@ def build_skip_net(
         A `tf.keras.Model`.
 
     """
+    data_format = utils.convert_data_format(data_format)
+    keras_data_format = utils.convert_data_format(data_format, False)
+    channels_axis = -1
+    input_shape = (None, None, input_channels)
+    if data_format == "NCHW":
+        channels_axis = 1
+        input_shape = (input_channels, None, None)
 
     down_channels = tf.constant(down_channels, shape=levels)
     up_channels = tf.constant(up_channels, shape=levels)
@@ -69,7 +78,7 @@ def build_skip_net(
         tf.constant(upsample_modes, shape=levels, dtype=tf.string).numpy().astype(str)
     )
 
-    inputs = tf.keras.layers.Input(shape=(None, None, input_channels))
+    inputs = tf.keras.layers.Input(shape=input_shape)
 
     # First, we add layers along the deeper branch.
     deeper_startnodes = [None] * (levels + 1)
@@ -83,8 +92,9 @@ def build_skip_net(
                 strides=2,
                 padding_mode=padding_mode,
                 use_bias=use_bias,
+                data_format=data_format,
             )(deeper_startnodes[i])
-            output = tf.keras.layers.BatchNormalization()(output)
+            output = tf.keras.layers.BatchNormalization(axis=channels_axis)(output)
             output = activations()(output)
 
             output = layers.ConvWithPad2D(
@@ -92,8 +102,9 @@ def build_skip_net(
                 down_sizes[i],
                 padding_mode=padding_mode,
                 use_bias=use_bias,
+                data_format=data_format,
             )(output)
-            output = tf.keras.layers.BatchNormalization()(output)
+            output = tf.keras.layers.BatchNormalization(axis=channels_axis)(output)
             deeper_startnodes[i + 1] = activations()(output)
 
     # Second, we add skip connections (if any) to deeper main nodes.
@@ -107,8 +118,9 @@ def build_skip_net(
                     skip_sizes[i],
                     padding_mode=padding_mode,
                     use_bias=use_bias,
+                    data_format=data_format,
                 )(deeper_startnodes[i])
-                output = tf.keras.layers.BatchNormalization()(output)
+                output = tf.keras.layers.BatchNormalization(axis=channels_axis)(output)
                 skip_nodes[i] = activations()(output)
 
     # Finally, we concat skip connections and deeper (if any) or append
@@ -124,11 +136,11 @@ def build_skip_net(
         with tf.name_scope(f"deeper_{i}"):
             # Upsampling before concatenation.
             deeper_endnodes[i + 1] = tf.keras.layers.UpSampling2D(
-                interpolation=upsample_modes[i]
+                interpolation=upsample_modes[i], data_format=keras_data_format
             )(deeper_endnodes[i + 1])
 
             output = (
-                tf.keras.layers.Concatenate(axis=-1)(
+                tf.keras.layers.Concatenate(axis=channels_axis)(
                     [skip_nodes[i], deeper_endnodes[i + 1]]
                 )
                 if skip_channels[i] != 0
@@ -136,29 +148,38 @@ def build_skip_net(
             )
 
             # Some final layers for deeper.
-            output = tf.keras.layers.BatchNormalization()(output)
+            output = tf.keras.layers.BatchNormalization(axis=channels_axis)(output)
 
             output = layers.ConvWithPad2D(
                 up_channels[i],
                 up_sizes[i],
                 padding_mode=padding_mode,
                 use_bias=use_bias,
+                data_format=data_format,
             )(output)
-            output = tf.keras.layers.BatchNormalization()(output)
+            output = tf.keras.layers.BatchNormalization(axis=channels_axis)(output)
             output = activations()(output)
 
             if use_1x1up:
                 output = layers.ConvWithPad2D(
-                    up_channels[i], 1, padding_mode=padding_mode, use_bias=use_bias
+                    up_channels[i],
+                    1,
+                    padding_mode=padding_mode,
+                    use_bias=use_bias,
+                    data_format=data_format,
                 )(output)
-                output = tf.keras.layers.BatchNormalization()(output)
+                output = tf.keras.layers.BatchNormalization(axis=channels_axis)(output)
                 output = activations()(output)
 
             deeper_endnodes[i] = output
 
     # Final touches
     outputs = layers.ConvWithPad2D(
-        output_channels, 1, padding_mode=padding_mode, use_bias=use_bias
+        output_channels,
+        1,
+        padding_mode=padding_mode,
+        use_bias=use_bias,
+        data_format=data_format,
     )(deeper_endnodes[0])
     if use_sigmoid:
         outputs = tf.keras.layers.Activation(tf.nn.sigmoid)(outputs)

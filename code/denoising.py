@@ -14,12 +14,18 @@ def denoising_train_dataset_generator(x, y, noise_std=1 / 30):
         yield (tf.add(x, tf.random.normal(tf.shape(x), stddev=noise_std)), y)
 
 
-def build_denoising_initial_input(input_img, input_depth, maxval=0.1):
-    size = tf.shape(input_img)[tf.rank(input_img) - 3 : tf.rank(input_img) - 1]
-    return tf.random.uniform((1, size[0], size[1], input_depth), 0, maxval)
+def build_denoising_initial_input(input_img, input_depth, maxval=0.1, data_format=None):
+    input_shape = None
+    if data_format != "NCHW":
+        size = tf.shape(input_img)[tf.rank(input_img) - 3 : tf.rank(input_img) - 1]
+        input_shape = (1, size[0], size[1], input_depth)
+    else:
+        size = tf.shape(input_img)[tf.rank(input_img) - 2 : tf.rank(input_img)]
+        input_shape = (1, input_depth, size[0], size[1])
+    return tf.random.uniform(input_shape, 0, maxval)
 
 
-def build_denoising_model(summary=False, plot=None):
+def build_denoising_model(summary=False, plot=None, data_format=None):
     model = skip.build_skip_net(
         32,
         3,
@@ -29,6 +35,7 @@ def build_denoising_model(summary=False, plot=None):
         4,
         upsample_modes="bilinear",
         padding_mode="reflect",
+        data_format=data_format,
         activations=functools.partial(tf.keras.layers.LeakyReLU, 0.2),
     )
     if summary:
@@ -53,9 +60,8 @@ def get_denoising_options():
     )
 
     parser.add_argument(
-        "--use_nhwc",
-        type=bool,
-        default=True,
+        "--use_nchw",
+        action="store_true",
         help="whether to use `NCHW` or `NHWC` (default `NHWC`)",
     )
 
@@ -85,19 +91,24 @@ def get_denoising_options():
 
 if __name__ == "__main__":
     args = get_denoising_options()
+
+    data_format = "NCHW" if args.use_nchw else "NHWC"
+
     input_img, noisy_img = None, None
     if args.input is not None:
-        input_img = utils.load_img(args.input)
+        input_img = utils.load_img(args.input, data_format=data_format)
     if args.noisy is not None:
-        noisy_img = utils.load_img(args.noisy)
+        noisy_img = utils.load_img(args.noisy, data_format=data_format)
         noisy_img = tf.expand_dims(noisy_img, axis=0)
     else:
         input_img = tf.expand_dims(input_img, axis=0)
         noisy_img = utils.make_noisy_img(input_img)
 
-    input_net = build_denoising_initial_input(noisy_img, args.input_depth)
+    input_net = build_denoising_initial_input(
+        noisy_img, args.input_depth, data_format=data_format
+    )
 
-    model = build_denoising_model()
+    model = build_denoising_model(data_format=data_format)
     addition_imgs = {"original": input_img} if input_img is not None else {}
     model.compile(
         loss="mse",
@@ -117,4 +128,4 @@ if __name__ == "__main__":
     )
     denoised_img = model(input_net)
     if args.denoised is not None:
-        utils.save_img(args.denoised, denoised_img)
+        utils.save_img(args.denoised, denoised_img, data_format=data_format)

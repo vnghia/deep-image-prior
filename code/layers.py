@@ -1,5 +1,7 @@
 import tensorflow as tf
 
+import utils
+
 
 class Pad2D(tf.keras.layers.Layer):
     """Pads a 2D input tensor.
@@ -59,7 +61,7 @@ class ConvWithPad2D(tf.keras.layers.Layer):
         self.kernel_size = kernel_size
         self.strides = strides
         self.padding_mode = padding_mode.capitalize()
-        self.data_format = data_format
+        self.data_format = utils.convert_data_format(data_format)
         self.use_bias = use_bias
 
     def build(self, input_shape):
