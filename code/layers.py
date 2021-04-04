@@ -60,14 +60,22 @@ class ConvWithPad2D(tf.keras.layers.Layer):
         self.filters = filters
         self.kernel_size = kernel_size
         self.strides = strides
-        self.padding_mode = padding_mode.capitalize()
+        self.padding_mode = padding_mode.lower()
+        if self.padding_mode == "zero":
+            self.padding_mode = "constant"
         self.data_format = utils.convert_data_format(data_format)
         self.use_bias = use_bias
 
     def build(self, input_shape):
-        self.pad = Pad2D(
-            (self.kernel_size - 1) // 2, self.padding_mode, data_format=self.data_format
-        )
+        # Padding
+        self.paddings = tf.constant((self.kernel_size - 1) // 2, shape=[2, 2])
+        self.paddings = tf.concat([[[0, 0]], self.paddings], 0)  # `batch_size`
+        if self.data_format == "NHWC":
+            self.paddings = tf.concat([self.paddings, [[0, 0]]], 0)  # `channels_last`
+        elif self.data_format == "NCHW":
+            self.paddings = tf.concat([[[0, 0]], self.paddings], 0)  # `channels_first`
+        # End padding
+
         in_channels = None
         if self.data_format == "NHWC":
             in_channels = input_shape[-1]
@@ -88,7 +96,7 @@ class ConvWithPad2D(tf.keras.layers.Layer):
             )
 
     def call(self, inputs):
-        outputs = self.pad(inputs)
+        outputs = tf.pad(inputs, self.paddings, self.padding_mode, 0)
         outputs = tf.nn.conv2d(
             outputs,
             self.kernel,
