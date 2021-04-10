@@ -57,14 +57,28 @@ class ConvWithPad2D(tf.keras.layers.Layer):
         **kwargs,
     ):
         super().__init__(trainable=True, **kwargs)
-        self.filters = filters
-        self.kernel_size = kernel_size
+        self.filters = int(filters)
+        self.kernel_size = int(kernel_size)
         self.strides = strides
-        self.padding_mode = padding_mode.lower()
+        self.padding_mode = str(padding_mode.lower())
         if self.padding_mode == "zero":
             self.padding_mode = "constant"
-        self.data_format = utils.convert_data_format(data_format)
-        self.use_bias = use_bias
+        self.data_format = str(utils.convert_data_format(data_format))
+        self.use_bias = bool(use_bias)
+
+    def get_config(self):
+        return {
+            "filters": self.filters,
+            "kernel_size": self.kernel_size,
+            "strides": self.strides,
+            "padding_mode": self.padding_mode,
+            "data_format": self.data_format,
+            "use_bias": self.use_bias,
+        }
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
 
     def build(self, input_shape):
         # Padding
