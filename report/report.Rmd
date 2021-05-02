@@ -31,17 +31,41 @@ knitr::opts_chunk$set(fig.align = "center")
 
 # Introduction
 
-[Réseau neuronal convolutif] (en anglais ***CNN***) est actuellement l'une des techniques les plus connues dans les problèmes de reconstruction d'image inverse. Il s'est avéré efficace dans un grand nombre de tâches, y compris le débruitage d'image, la super-résolution d'image et la reconstruction d'images avec perte.
+[Réseau neuronal convolutif] (en anglais ***CNN***) est actuellement l'une des techniques 
+les plus connues dans les problèmes de reconstruction d'image inverse.
+Ils se sont avérés efficace dans un grand nombre de tâches, y compris le débruitage d'image,
+la super-résolution d'image et la reconstruction d'images.
+Elle est un type de réseau de neurones artificiels acycliques (feed-forward),
+dans lequel le motif de connexion entre les neurones est inspiré
+par le cortex visuel des animaux.
 
-La puissance de cette architecture est attribuée à sa capacité à apprendre à partir de nombreux grands ensembles d'images. Cependant, [@2007.02471; @1711.10925] et de nombreux autres travaux ont démontré que l'architecture d'un CNN peut agir comme un préalable suffisamment fort pour résoudre [des problèmes inverses][Les problèmes inverses] comme la reconstruction d'image, même sans aucune donnée d'apprentissage. Plus précisément, les réseaux non formés fonctionnent bien pour le débruitage de l'image [@2007.02471], l'acquisition comprimée [@1806.06438] et même pour la reconstruction de vidéos [@1910.01684].
+La puissance de cette architecture est attribuée à sa capacité d'apprendre
+à partir de nombreux grands ensembles d'images. 
+Cependant, [@2007.02471; @1711.10925] et de nombreux autres travaux ont démontré
+que l'architecture d'un CNN peut agir comme un préalable suffisamment fort pour résoudre
+[des problèmes inverses][Les problèmes inverses] comme la reconstruction d'image,
+même sans étape d'apprentissage. Plus précisément, les réseaux non entrans
+fonctionnent bien pour le débruitage d'image [@2007.02471],
+l'acquisition comprimée [@1806.06438] et même pour la reconstruction de vidéos [@1910.01684].
 
-Dans ce travail, nous nous concentrerons sur cette technique (***Deep Image Prior***). Dans la partie suivante, nous allons examiner quelques exemples. En suite, nous approfondissons le principe sous-jacent de celui-ci à travers l'exemple précédent. Enfin, nous expérimenterons ce que nous venons de présenter ci-dessus et ferons quelques études complémentaires.
+Dans ce travail, nous nous concentrerons sur la technique ***Deep Image Prior***.
+Dans la partie suivante, nous allons examiner quelques exemples.
+En suite, nous approfondissons le principe sous-jacent de celui-ci à travers l'exemple précédent.
+Enfin, nous expérimenterons ce que nous venons de présenter ci-dessus
+et ferons quelques études complémentaires.
 
 Tout d'abord, nous clarifierons certaines terminologies.
 
 ## Réseau neuronal convolutif
 
-Un réseau neuronal est l’association, en un graphe plus ou moins complexe, d’objets élémentaires, les neurones formels. Les principaux réseaux se distinguent par l’organisation du graphe (en couches, complets, $etc,$), c’est-à-dire leur architecture, son niveau de complexité (le nombre de neurones, présence ou non de boucles de rétroaction dans le réseau) par le type des neurones (leurs fonctions de transition ou d’activation) et enfin par l’objectif visé: apprentissage supervisé ou non, optimisation, systèmes dynamiques, $etc.$
+Un réseau neuronal est l’association, en un graphe plus ou moins complexe,
+d’objets élémentaires, les neurones formels.
+Les principaux réseaux se distinguent par l’organisation du graphe (en couches, complets, $etc,$),
+c’est-à-dire leur architecture, son niveau de complexité
+(le nombre de neurones, présence ou non de boucles de rétroaction dans le réseau)
+par le type des neurones (leurs fonctions de transition ou d’activation)
+et enfin par l’objectif visé: apprentissage supervisé ou non, optimisation,
+systèmes dynamiques, $etc.$
 
 Le neurone formel est un modèle qui se caractérise par
 un état interne $s$ , des signaux d’entrée $x_{1}$, \dots,  $x_{p}$ et une fonction d’activation
@@ -76,13 +100,13 @@ Dans cette partie, un résumé des différents aspects techniques est une introd
 ## Le code
 Tout d'abord, nous entrons dans le code. Comme indiqué ci-dessus, nous avons essayé de réécrire le code dans [@1711.10925]. Étant donné que chaque problème nécessite un modèle différent, nous nous concentrons uniquement sur le modèle de débruitage (bien que notre code devrait fonctionner avec la plupart des modèles de cet article).
 
-Outre la motivation de mieux comprendre le code, il y a quelques raisons techniques à nos motivations pour un réusinage:
+Outre la motivation de mieux comprendre le code, il y a quelques raisons techniques à nos motivations pour un réimplémentation:
 
 - Le code est obsolète (il a été écrit pour la première fois en 2017).
 - Mélange entre Pytorch Sequential et Module API, ce qui rend le code difficile à suivre (en particulier la fonction de création de modèle).
 - Modèle irritant par boucle brute, ce qui rend plus difficile l'intégration avec des API et des outils modernes (par exemple TensorBoard).
 
-Nous le réécrivons à l'aide de TensorFlow, et nous ajoutons également des métriques supplémentaires pour mesurer le PSNR entre l'image débruitée et l'image bruyante et le PSNR entre l'image débruitée et l'image originale.
+Nous le réécrivons à l'aide de TensorFlow, et nous ajoutons également des métriques supplémentaires pour mesurer le PSNR entre l'image débruitée et l'image bruité et le PSNR entre l'image débruitée et l'image originale.
 
 ## Le modèle
 ```{r denoising-model, fig.cap="Exemple de modèle de débruitage", out.height="75%"}
@@ -102,7 +126,7 @@ knitr::include_graphics("../res/edge/lena_edge.png")
 
 Le décodage est un processus d'extraction de caractéristiques d'une image. Sur le côté opposé, l'encodeur collectera les caractéristiques des décodeurs et reconstruira l'image. Les caractéristiques peuvent être n'importe quoi, varient des bords (\@ref(fig:compare-with-edge)), de la couleur à la résolution.
 
-Dans notre cas, le nombre de 32 de la [section précédente][Le modèle] signifie que nous capturons 32 caractéristiques différentes à partir d'une image bruyante pour reconstruire l'image d'origine. Cela explique pourquoi si nous répétons le processus trop souvent, l'image de sortie tendra vers l'image bruyante. Parce qu'à une certaine étape, les décodeurs considéreront le bruit comme une caractéristique et le captureront.
+Dans notre cas, le nombre de 32 de la [section précédente][Le modèle] signifie que nous capturons 32 caractéristiques différentes à partir d'une image bruité pour reconstruire l'image d'origine. Cela explique pourquoi si nous répétons le processus trop souvent, l'image de sortie tendra vers l'image bruité. Parce qu'à une certaine étape, les décodeurs considéreront le bruit comme une caractéristique et le captureront.
 
 Sous le capot, le décodeur est construit à partir d'opérations convolutives. En parcourant chaque pixel et en appliquant le noyau convolutif, nous pourrions extraire les fonctionnalités souhaitées. L'illustration d'une opération convolutive en image peut être vue comme suit:
 $$\left(\begin{bmatrix}
@@ -127,7 +151,7 @@ $$
 Pour bien comprendre, nous avons bouclé le processus 6000 fois.
 
 Voici notre image de test:
-```{r noisy-original-image, fig.cap="L'image originale et l'image bruyante", fig.show="hold", out.width="25%", fig.subcap=c("original", "bruyant")}
+```{r noisy-original-image, fig.cap="L'image originale et l'image bruité", fig.show="hold", out.width="25%", fig.subcap=c("original", "bruyant")}
 knitr::include_graphics("../res/denoising/input.png")
 knitr::include_graphics("../res/denoising/noisy.png")
 ```
@@ -140,20 +164,20 @@ knitr::include_graphics("../res/denoising/epoch_2999.png")
 knitr::include_graphics("../res/denoising/epoch_5999.png")
 ```
 
-Nous pouvions voir clairement les différences entre chaque époque. Cela pourrait s'expliquer comme suit:
+Nous pouvions voir clairement les différences entre chaque epoche. Cela pourrait s'expliquer comme suit:
 
 - A la première époque, l'entrée est un bruit aléatoire et le modèle est initialisé avec des poids aléatoires. Nous voyons donc une image aléatoire, qui n'est pas liée à la sortie souhaitée.
-- Vers la 1000e époque, les décodeurs à l'intérieur du modèle commencent à s'ajuster pour extraire les caractéristiques de l'image bruyante. Premièrement, ils extraient les plus importants comme le bord, la couleur, la résolution, $etc.$
+- Vers la 1000e époque, les décodeurs à l'intérieur du modèle commencent à s'ajuster pour extraire les caractéristiques de l'image bruité. Premièrement, ils extraient les plus importants comme le bord, la couleur, la résolution, $etc.$
 - A la 3000ème époque, les décodeurs et encodeurs sont désormais capables d'extraire toutes les caractéristiques souhaitées et de reconstruire une image de sortie comme on le voit dans \@ref(fig:model-epoch-output).
 - Plus nous bouclons le processus, plus il y a de parties extraites et des caractéristiques indésirables comme le bruit sont également incluses. Par conséquent, nous voyons une image assez proche de l'image bruyante (\@ref(fig:noisy-original-image)).
 
 Pour une vue plus scientifique, ce sont les métriques que nous avons utilisées lors de l'itération de ce modèle:
-```{r model-psnr, fig.cap="Le PSNR entre l'image débruitée et l'image", fig.show="hold", out.width="50%", fig.subcap=c("originale", "bruyante")}
+```{r model-psnr, fig.cap="Le PSNR entre l'image débruitée et l'image", fig.show="hold", out.width="50%", fig.subcap=c("originale", "bruité")}
 knitr::include_graphics("../res/denoising/psnr_original.png")
 knitr::include_graphics("../res/denoising/psnr_noisy.png")
 ```
 
-D'après le figure \@ref(fig:model-psnr), il y a une tendance croissante dans le PSNR entre l'image débruitée et l'image bruyante. D'autre parts, le PSNR entre celui-ci et l'image d'origine atteint son apogée vers 3000 époques et commence à diminuer par la suite. Cela correspond à ce que nous avons vu auparavant en comparant différentes sorties avec nos yeux.
+D'après la figure \@ref(fig:model-psnr), il y a une tendance croissante dans le PSNR entre l'image débruitée et l'image bruyante. D'autre part, le PSNR entre celui-ci et l'image d'origine atteint son apogée vers 3000 epoches et commence à diminuer par la suite. Cela correspond à ce que nous avons vu auparavant en comparant différentes sorties avec nos yeux.
 
 C'est la fin des aspects techniques. Dans la partie suivante, nous approfondirons les principes mathématiques sous-jacents, en particulier pourquoi cette méthode fonctionne ?
 
