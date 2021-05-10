@@ -1,0 +1,27 @@
+name: GitHub CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-pdf:
+    name: Build PDF
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: lc5415/rmarkdown-action@v1
+        with:
+          input_file: report/report.Rmd
+      - uses: actions/upload-artifact@v2
+        with:
+          name: report-pdf
+          path: report/report.pdf
+      - uses: actions/upload-artifact@v2
+        with:
+          name: report-tex
+          path: report/report.tex
