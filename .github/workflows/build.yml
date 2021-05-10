@@ -14,14 +14,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: lc5415/rmarkdown-action@v1
+      - name: Install Dependencies
+        run: |
+          sudo apt-get -y install biber
+          sudo apt-get -y install texlive
+          sudo apt-get -y install texlive-xetex
+          sudo apt-get -y install texlive-lang-french
+          sudo apt-get -y install imagemagick
+          sudo apt-get -y install pandoc
+          wget https://download.jetbrains.com/fonts/JetBrainsMono-2.225.zip
+          unzip JetBrainsMono-2.225.zip
+          sudo mv fonts/ttf/JetBrainsMono-*.ttf /usr/share/fonts/
+      - uses: actions/cache@v2
         with:
-          input_file: report/report.Rmd
+          path: ~/.local/share/renv
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
+      - name: Restore Renv
+        shell: Rscript {0}
+        run: |
+          if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
+          renv::restore()
+      - name: Render PDF
+        shell: Rscript {0}
+        run: |
+          rmarkdown::render("report/report.Rmd")
       - uses: actions/upload-artifact@v2
         with:
-          name: report-pdf
+          name: report.pdf
           path: report/report.pdf
       - uses: actions/upload-artifact@v2
         with:
-          name: report-tex
+          name: report.tex
           path: report/report.tex
