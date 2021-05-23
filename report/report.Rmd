@@ -152,3 +152,5 @@ D'après la figure \@ref(fig:model-psnr), il y a une tendance croissante dans le
 C'est la fin des aspects techniques. Dans la partie suivante, nous approfondirons les principes mathématiques sous-jacents, en particulier pourquoi cette méthode fonctionne ?
 
 \newpage
+
+## Mathématiques
