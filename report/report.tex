@@ -3,7 +3,7 @@
 \PassOptionsToPackage{hyphens}{url}
 %
 \documentclass[
-  11pt,
+  12pt,
   dvipsnames]{article}
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
@@ -155,7 +155,7 @@ VO Van Nghia\\
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-\protect\hyperlink{ruxe9seau-neuronal-convolutif}{Réseau neuronal convolutif} (en anglais \textbf{\emph{CNN}}) est actuellement l'une des techniques les plus connues dans les problèmes de reconstruction d'image inverse. Ils se sont avérés efficace dans un grand nombre de tâches, y compris le débruitage d'image, la super-résolution d'image et la reconstruction d'images. Elle est un type de réseau de neurones artificiels acycliques (feed-forward), dans lequel le motif de connexion entre les neurones est inspiré par le cortex visuel des animaux.
+Le \protect\hyperlink{ruxe9seau-neuronal-convolutif}{Réseau neuronal convolutif} (en anglais \textbf{\emph{CNN}}) est actuellement l'une des techniques les plus connues dans les problèmes de reconstruction d'image inverse. Ils se sont avérés efficace dans un grand nombre de tâches, y compris le débruitage d'image, la super-résolution d'image et la reconstruction d'images. Elle est un type de réseau de neurones artificiels acycliques (feed-forward), dans lequel le motif de connexion entre les neurones est inspiré par le cortex visuel des animaux.
 
 La puissance de cette architecture est attribuée à sa capacité d'apprendre à partir de nombreux grands ensembles d'images. Cependant, \autocite{2007.02471,1711.10925} et de nombreux autres travaux ont démontré que l'architecture d'un CNN peut agir comme un préalable suffisamment fort pour résoudre \protect\hyperlink{les-probluxe8mes-inverses}{des problèmes inverses} comme la reconstruction d'image, même sans étape d'apprentissage. Plus précisément, les réseaux non entrans fonctionnent bien pour le débruitage d'image \autocite{2007.02471}, l'acquisition comprimée \autocite{1806.06438} et même pour la reconstruction de vidéos \autocite{1910.01684}.
 
@@ -163,41 +163,7 @@ Dans ce travail, nous nous concentrerons sur la technique \textbf{\emph{Deep Ima
 
 Tout d'abord, nous clarifierons certaines terminologies.
 
-\hypertarget{ruxe9seau-neuronal-convolutif}{%
-\subsection{Réseau neuronal convolutif}\label{ruxe9seau-neuronal-convolutif}}
-
-Un réseau neuronal est l'association, en un graphe plus ou moins complexe, d'objets élémentaires, les neurones formels. Les principaux réseaux se distinguent par l'organisation du graphe (en couches, complets, \(etc,\)), c'est-à-dire leur architecture, son niveau de complexité (le nombre de neurones, présence ou non de boucles de rétroaction dans le réseau) par le type des neurones (leurs fonctions de transition ou d'activation) et enfin par l'objectif visé: apprentissage supervisé ou non, optimisation, systèmes dynamiques, \(etc.\)
-
-Le neurone formel est un modèle qui se caractérise par un état interne \(s\) , des signaux d'entrée \(x_{1}\), \dots, \(x_{p}\) et une fonction d'activation
-\[ s=h(x_{1},\dots,x_{p})=g(\alpha_{0} + \sum_{j=1}^{p} \alpha_{j}x_{j}) = g(\alpha_{0} + \alpha' x)\]
-
-La fonction d'activation opère une transformation d'une combinaison affine des signaux d'entrée, \(\alpha_{0}\), terme constant, étant appelé le biais du neurone. Cette combinaison affine est déterminée par un vecteur de poids \([\alpha_{0},\dots,\alpha_{p}]\) associé à chaque neurone et dont les valeurs sont estimées dans la phase d'apprentissage. Ils constituent la mémoire ou connaissance répartie du réseau.
-
-Un réseau de neurones convolutifs ou réseau de neurones à convolution est un type de réseau de neurones artificiels, dont architecture est formée par un empilement de couches (les combinaisons des neurones formels) de traitement:
-
-\begin{itemize}
-\tightlist
-\item
-  La couche de convolution (CONV)
-\item
-  La couche de pooling (POOL)
-\item
-  La couche d'activation
-\item
-  La couche ``entièrement connectée'' (FC)
-\item
-  La couche de perte (LOSS)
-\end{itemize}
-
-\hypertarget{les-probluxe8mes-inverses}{%
-\subsection{Les problèmes inverses}\label{les-probluxe8mes-inverses}}
-
-Les problèmes inverses peuvent être formulés comme la tâche d'optimisation avec la formule:
-\[x^* = min_{x}E(x;x_{0}) + R(x)\]
-
-Le réseau neuronal convolutionnel va décoder et générer une fonction de type:
-\[x = f_{\theta}(z)\]
-qui correspond bien aux données. La fonction va lier un vecteur qui est donné au hasard avec une image X. La méthode est sélectionnée spécifiquement pour chaque application.
+\newpage
 
 \hypertarget{les-aspects-techniques}{%
 \section{Les aspects techniques}\label{les-aspects-techniques}}
@@ -228,7 +194,7 @@ Nous le réécrivons à l'aide de TensorFlow, et nous ajoutons également des m�
 
 \begin{figure}
 
-{\centering \includegraphics[height=0.75\textheight]{../res/denoising/model_sample} 
+{\centering \includegraphics[height=0.9\textheight]{../res/denoising/model_sample} 
 
 }
 
@@ -258,19 +224,21 @@ Dans notre cas, le nombre de 32 de la \protect\hyperlink{le-moduxe8le}{section p
 Sous le capot, le décodeur est construit à partir d'opérations convolutives. En parcourant chaque pixel et en appliquant le noyau convolutif, nous pourrions extraire les fonctionnalités souhaitées. L'illustration d'une opération convolutive en image peut être vue comme suit:
 \[\left(\begin{bmatrix}
   0 & 0 & 0 & 0 & 0\\
-  0 & 1 & 2 & 3 & 0\\
-  0 & 4 & 5 & 6 & 0\\
-  0 & 7 & 8 & 9 & 0\\
+  0 & a & b & c & 0\\
+  0 & d & e & f & 0\\
+  0 & g & h & j & 0\\
   0 & 0 & 0 & 0 & 0\\
 \end{bmatrix}
 \begin{bmatrix}
-  a & b & c\\
-  d & e & f\\
-  g & h & i\\
-\end{bmatrix}\right)[1, 1] =
-0\cdot a + 0\cdot b + 0\cdot c +
-0\cdot d + 1\cdot e + 2\cdot f +
-0\cdot g + 4\cdot h + 5\cdot i
+  1 & 1\\
+  1 & 1\\
+\end{bmatrix}\right) =
+\begin{bmatrix}
+  a & a+b & b+c & c\\
+  a+d & a+b+d+e & b+c+e+f & c+f\\
+  d+g & d+e+g+h & e+f+h+j & f+j\\
+  g & g+h & h+j & j\\
+\end{bmatrix}
 \]
 
 \hypertarget{la-sortie}{%
@@ -328,6 +296,137 @@ Pour une vue plus scientifique, ce sont les métriques que nous avons utilisées
 D'après la figure \ref{fig:model-psnr}, il y a une tendance croissante dans le PSNR entre l'image débruitée et l'image bruyante. D'autre part, le PSNR entre celui-ci et l'image d'origine atteint son apogée vers 3000 epoches et commence à diminuer par la suite. Cela correspond à ce que nous avons vu auparavant en comparant différentes sorties avec nos yeux.
 
 C'est la fin des aspects techniques. Dans la partie suivante, nous approfondirons les principes mathématiques sous-jacents, en particulier pourquoi cette méthode fonctionne ?
+
+\newpage
+
+\hypertarget{mathuxe9matiques-et-deep-learning}{%
+\section{Mathématiques et Deep Learning}\label{mathuxe9matiques-et-deep-learning}}
+
+Tout d'abord, nous clarifierons certaines terminologies.
+
+\hypertarget{les-probluxe8mes-inverses}{%
+\subsection{Les problèmes inverses}\label{les-probluxe8mes-inverses}}
+
+Les problèmes inverses peuvent être formulés comme la tâche d'optimisation avec la formule:
+\[x^* = min_{x}E(x;x_{0}) + R(x)\]
+
+Le réseau neuronal convolutionnel va décoder et générer une fonction de type:
+\[x = f_{\theta}(z)\]
+qui correspond bien aux données. La fonction va lier un vecteur qui est donné au hasard avec une image \(x\).
+La méthode est sélectionnée spécifiquement pour chaque application.
+
+\hypertarget{ruxe9seaux-profonds}{%
+\subsection{Réseaux profonds}\label{ruxe9seaux-profonds}}
+
+Les réseaux profonds sont des modèles paramétriques qui effectuent des opérations séquentielles sur leurs données d'entrée. Chacune de ces opérations, communément appelée «couche», consiste en une transformation linéaire, disons, une convolution de son entrée, suivie d'une «fonction d'activation» non linéaire ponctuelle, par exemple, un sigmoïde. Les réseaux profonds ont récemment conduit à des améliorations spectaculaires des performances de classification dans diverses applications de traitement de la parole et du langage naturel et de la vision par ordinateur. La propriété cruciale des réseaux profonds que l'on pense être la racine de leurs performances est qu'ils ont un grand nombre de couches par rapport aux réseaux de neurones classiques; mais il existe d'autres modifications architecturales telles que les acti vations linéaires rectifiées (ReLUs) et les connexions «raccourcies» résiduelles. D'autres facteurs majeurs de leur succès sont la disponibilité d'ensembles de données massifs, par exemple des millions d'images dans des ensembles de données comme ImageNet, et du matériel informatique GPU efficace pour résoudre le problème d'optimisation de haute dimension qui en résulte, qui peut avoir jusqu'à 100 millions de paramètres. Le succès empirique de l'apprentissage profond, en particulier des réseaux de neurones convolutionnels (CNN) pour les tâches basées sur l'image, présente de nombreuses énigmes aux théoriciens. En particulier, il existe trois facteurs clés dans l'apprentissage profond, à savoir les architectures, les techniques de régularisation et les algorithmes d'optimisation, qui sont essentiels pour former des réseaux profonds performants et comprendre leur nécessité et leur interaction est essentiel si nous voulons percer les secrets de leur succès
+
+\hypertarget{ruxe9seau-neuronal-convolutif}{%
+\subsection{Réseau neuronal convolutif}\label{ruxe9seau-neuronal-convolutif}}
+
+\hypertarget{definition}{%
+\subsubsection{Definition}\label{definition}}
+
+Un réseau neuronal est l'association d'objets élémentaires, les neurones formels, interconnectés permettant la résolution de problèmes complexes tels que la reconnaissance des formes ou le traitement du langage naturel,
+grâce à l'ajustement des coefficients de pondération dans une phase d'apprentissage. Le réseau éxecute quelques opération avec les données. Pour chaque opération, familièrement appelée \textbf{couche}, consiste une transformation linéaire des données avec une fonction d'activation.
+
+\begin{figure}
+
+{\centering \includegraphics{../res/cnn} 
+
+}
+
+\caption{Illustration d'un réseau neuronal convolutif}\label{fig:cnn-model}
+\end{figure}
+
+Le premier modèle mathématique et informatique du neurone biologique est proposé par Warren McCulloch et Walter Pitts. Dans le modèle de McCulloch et Pitts, à chaque entrée est associé une valeur numérique appelé le poids synaptique.
+Donc, nous pouvons écrire le neurone formel comme un modèle qui se caractérise par
+un état interne \(s\) , des signaux d'entrée \(x_{1}\), \dots, \(x_{p}\) avec les poids synaptique associé
+\(\alpha_{1}\), \dots, \(\alpha_{p}\) et une fonction d'activation
+\[ s=h(x_{1},\dots,x_{p})=\phi(\alpha_{0} + \sum_{j=1}^{p} \alpha_{j}x_{j}) = \phi(\alpha_{0} + \alpha' x)\]
+
+Les principaux réseaux se distinguent par l'organisation du graphe (en couches, complets, \(etc,\)), c'est-à-dire leur architecture, son niveau de complexité (le nombre de neurones, présence ou non de boucles de rétroaction dans le réseau) par le type des neurones (leurs fonctions de transition ou d'activation) et enfin par l'objectif visé: apprentissage supervisé ou non, optimisation, systèmes dynamiques, \(etc.\)
+
+La fonction d'activation opère une transformation d'une combinaison affine
+des signaux d'entrée, \(\alpha_{0}\), terme constant, étant appelé le biais du neurone.
+Cette combinaison affine est déterminée par un vecteur de poids \([\alpha_{0},\dots,\alpha_{p}]\) associé à chaque neurone et dont les valeurs sont estimées dans la phase d'apprentissage.
+Ils constituent la mémoire ou connaissance répartie du réseau.
+
+Un réseau de neurones convolutifs ou réseau de neurones à convolution
+est un type de réseau de neurones artificiels, dont architecture est formée par
+un empilement de couches (les combinaisons des neurones formels) de traitement:
+
+\begin{itemize}
+\tightlist
+\item
+  La couche de convolution (CONV)
+\item
+  La couche de pooling (POOL)
+\item
+  La couche d'activation
+\item
+  La couche ``entièrement connectée'' (FC)
+\item
+  La couche de perte (LOSS)
+\end{itemize}
+
+\hypertarget{principes-mathuxe9matiques}{%
+\subsubsection{Principes mathématiques}\label{principes-mathuxe9matiques}}
+
+Soit \(x \in R^{N \cdot D}\) un point de données tel que chaque colonne de \(x\) est un \(D\)-dimensions point de données et \(N\) le nombre de exemples à entrainer. Soit \(W^k \in R^{d_{k-1} \cdot d_k}\) la matrice representant une transformation linéaire de la sortie de \textbf{couche} \(k-1\) (soit \(x_{k-1} \in R ^{Nd_{k-1}}\)) pour obtenir une \(d_k\)-dimension \(x_{k-1}W_{k} \in R^{N \cdot d_{k}}\)
+
+Soit \(\xi(x)\) une fonction d'activation non-linéaire (par exemple: une fonction sigmoïde \(\xi(x) = (1+e^{-x})^{-1}\), un ReLU \(\xi(x) = \max{0,x}\)). Donc, la sortie \(x_k\) sera:
+\[\phi (x, W^1, \dots, W^K)=\xi_K(\xi_{K-1}(\dots \xi_1(xW^1)\dots W^{K-1})W^K)\]
+
+\hypertarget{optimisation-globale}{%
+\subsection{Optimisation globale}\label{optimisation-globale}}
+
+Nous cherchons à aborder le problème d'apprendre les paramètres d'un réseau neuronal. Soit \$(X,Y) \(N\) exemples à entrainer. Sur le réglage de classification, chaque ligne de \$X \in R\^{}\{N \cdot D\} dénote un point de données dans \(R^D\) et chaque ligne de \$Y \in \{1,0\}\^{}\{N\cdot C\} dénote la cotisation de chaque point de données. Donc, nous cherchons à optimiser le problème d'apprendre le réseaux:
+\[\min_{{W^k}_{k=1}^K} l(Y,\phi(X,W^1,\dots,W^K))+\lambda \xi(W^1,\dots,W^K)\] avec \(l\) est la fonction de perte qui donne la conformité entre la sortie et le résultat prévu, \(\xi\) la fonction de régularisation désigné à éviter le surapprentissage et \(\lambda\) équilibre paramètres.
+
+\newpage
+
+\hypertarget{deep-image-prior}{%
+\section{Deep Image Prior}\label{deep-image-prior}}
+
+\hypertarget{principes}{%
+\subsection{Principes}\label{principes}}
+
+La technique \textbf{\emph{Deep Image Prior}} a fait une percée dans la dans le contexte
+de problèmes inverses mal posés. Le réseau est connu pour le reconstruction d'image sans étape d'apprentissage. Nous allons étudier les Principes dedans et comment cette technique fonctionne.
+
+Normalement, le \textbf{\emph{Deep learning}} aborde un problème par deux étapes. Premièrement, c'est l'étape d'apprentissage.
+Dans cette étape, le paramètre de réseau est optimisé par minimiser un approprié fonction de perte à partir de
+un grande ensemble de données. Puis, les nouvelles données est traité dans le réseau pour résoudre le problème.
+Néanmoins, la technique \textbf{\emph{Deep Image Prior}} est basé seulement sur une seul point de données \(y^\gamma\). C'est-à-dire
+la technique est d'entrainer un réseau avec son paramètre par minimiser la fonction de perte: \[\min_{\xi} \mid\mid A\varphi_\xi(z) - y^\gamma \mid\mid^2\].
+
+Le resultat sur le réseau de \textbf{\emph{Deep Prior}} utilise le feed-forward architecture qui commence par:
+
+\begin{center} $x^0 = z$    et    $x^{k+1} = \phi (W_k x^k + b_k)$ for $k = 0,...,L-1$  \end{center}
+
+Donc, les résultats obtenues sont \[\varphi_\xi(z) = x^L\] avec les paramètres \(\xi = \{W_0,...,W_{L-1},b_0,...,b_{L-1}\}\).
+Pour la technique \textbf{\emph{Deep Image Prior}}, il n'y a pas d'étape d'apprentissage. Donc, \(\xi\) n'est pas fixé.
+La solution pour le problème inverse sera \[x=\varphi_\xi(z)\] avec z fixé. La technique vise à paramétriser la solution avec \(\xi\).
+
+\hypertarget{muxe9thode-appliquuxe9e}{%
+\subsection{Méthode appliquée}\label{muxe9thode-appliquuxe9e}}
+
+Dans ce projet, nous cherchons à comprendre le fonctionnement de cette technique
+en utilisant le prieur implicitement capturé par le choix d'une structure de réseau de générateurs particulière.
+Nous avons mis un paramétrage \[x = f_\theta(z)\] avec \(x\) est un image de \(R^{3xHeightxWidth}\) (une image colorée de taille
+Height x Width pixels a chaque pixel un combinaison de 3 couleurs rouge, vert et bleu).
+Ici, \(\theta\) sont des paramètres du réseau.
+
+Suite le travail, nous essayons d'aborder le problème de reconstruire une image \(x\) d'une image endommagée \(x_0\) suite une tâche de minimiser: \[\min_{x} E(x;x_0) + R(x)\] où \(E(x;x_0)\) est une fonction dépendant des données et \(R(x)\) est une régularisation. Dans ce travail, nous essayons de prendre la régularisation \(R(x)\) comme le prieur capturé par le réseau convolutif. L'idée est de prendre une approprié application surjective \[g: \theta \mapsto x\] pour avoir: \[\min_{g(\theta)} E(g(\theta);x_0) + R(g(\theta))\] pour éliminer le terme \(R(x)\). Enfin, nous avons la formule: \[\min_{\theta} E(f_{\theta}(z);x_0)\] avec \(f_{\theta}\) est initialisé au hazard.
+
+En utilisant un méthode d'optimisation (par exemple : descente de gradient), nous cherchons à minimiser le terme \(\theta \rightarrow \theta^*\) :
+
+\begin {center} $\theta ^* = argmin_{\theta} E(f_{\theta}(z);x)$ et $x^* = f_{\theta^*}(z)$ \end {center}
+
+\hypertarget{application-sur-le-duxe9bruitage-et-reconstruction-dimage}{%
+\subsection{Application sur le débruitage et reconstruction d'image}\label{application-sur-le-duxe9bruitage-et-reconstruction-dimage}}
+
+Le but du débruitage est de reconstruire une image \(x\) d'une image bruité \(x_0\). Le modèle dégradé est parfois connu sur la forme : \(x_0 = x + \epsilon\). En prenant \[ E(x;x_{0})= \mid\mid x - x_{0} \mid\mid^2 \] nous avons un problème d'optimisation: \[ E(f_{\theta}(z);x_{0})= \mid\mid f_{\theta(z)} - x_{0} \mid\mid^2 \]
 
 \newpage
 
