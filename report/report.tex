@@ -200,7 +200,7 @@ La méthode est sélectionnée spécifiquement pour chaque application.
 \subsection{Réseau neuronal convolutif}\label{ruxe9seau-neuronal-convolutif}}
 
 Un réseau neuronal est l'association d'objets élémentaires, les neurones formels, interconnectés permettant la résolution de problèmes complexes tels que la reconnaissance des formes ou le traitement du langage naturel,
-grâce à l'ajustement des coefficients de pondération dans une phase d'apprentissage. Le réseau éxecute quelques opération avec les données. Pour chaque opération, familièrement appelée \textbf{layer}, consiste une transformation linéaire des données avec une fonction d'activation.
+grâce à l'ajustement des coefficients de pondération dans une phase d'apprentissage. Le réseau éxecute quelques opération avec les données. Pour chaque opération, familièrement appelée \textbf{couche}, consiste une transformation linéaire des données avec une fonction d'activation.
 
 \textbackslash Thêm cái ảnh ví dụ về CNN
 
@@ -235,10 +235,15 @@ un empilement de couches (les combinaisons des neurones formels) de traitement:
   La couche de perte (LOSS)
 \end{itemize}
 
+\hypertarget{ruxe9seaux-neuronals-profonds}{%
+\subsection{Réseaux neuronals profonds}\label{ruxe9seaux-neuronals-profonds}}
+
+Les réseaux profonds sont des modèles paramétriques qui effectuent des opérations séquentielles sur leurs données d'entrée. Chacune de ces opérations, communément appelée «couche», consiste en une transformation linéaire, disons, une convolution de son entrée, suivie d'une «fonction d'activation» non linéaire ponctuelle, par exemple, un sigmoïde. Les réseaux profonds ont récemment conduit à des améliorations spectaculaires des performances de classification dans diverses applications de traitement de la parole et du langage naturel et de la vision par ordinateur. La propriété cruciale des réseaux profonds que l'on pense être la racine de leurs performances est qu'ils ont un grand nombre de couches par rapport aux réseaux de neurones classiques; mais il existe d'autres modifications architecturales telles que les acti vations linéaires rectifiées (ReLUs) et les connexions «raccourcies» résiduelles. D'autres facteurs majeurs de leur succès sont la disponibilité d'ensembles de données massifs, par exemple des millions d'images dans des ensembles de données comme ImageNet, et du matériel informatique GPU efficace pour résoudre le problème d'optimisation de haute dimension qui en résulte, qui peut avoir jusqu'à 100 millions de paramètres. Le succès empirique de l'apprentissage profond, en particulier des réseaux de neurones convolutionnels (CNN) pour les tâches basées sur l'image, présente de nombreuses énigmes aux théoriciens. En particulier, il existe trois facteurs clés dans l'apprentissage profond, à savoir les architectures, les techniques de régularisation et les algorithmes d'optimisation, qui sont essentiels pour former des réseaux profonds performants et comprendre leur nécessité et leur interaction est essentiel si nous voulons percer les secrets de leur succès
+
 \hypertarget{principles-mathuxe9matiques-dun-ruxe9seau-neuronal-convulutif}{%
 \subsection{Principles mathématiques d'un réseau neuronal convulutif}\label{principles-mathuxe9matiques-dun-ruxe9seau-neuronal-convulutif}}
 
-Soit \(x \in R^{N \cdot D}\) un point de données tel que chaque colonne de \(x\) est un \(D\)-dimensions point de données et \(N\) le nombre de exemples à entrainer. Soit \(W^k \in R^{d_{k-1} \cdot d_k}\) la matrice representant une transformation linéaire de la sortie de \textbf{layer} \(k-1\) (soit \(x_{k-1} \in R ^{Nd_{k-1}}\)) pour obtenir une \(d_k\)-dimension \(x_{k-1}W_{k} \in R^{N \cdot d_{k}}\)
+Soit \(x \in R^{N \cdot D}\) un point de données tel que chaque colonne de \(x\) est un \(D\)-dimensions point de données et \(N\) le nombre de exemples à entrainer. Soit \(W^k \in R^{d_{k-1} \cdot d_k}\) la matrice representant une transformation linéaire de la sortie de \textbf{couche} \(k-1\) (soit \(x_{k-1} \in R ^{Nd_{k-1}}\)) pour obtenir une \(d_k\)-dimension \(x_{k-1}W_{k} \in R^{N \cdot d_{k}}\)
 
 Soit \(\xi(x)\) une fonction d'activation non-linéaire (par exemple: une fonction sigmoïde \(\xi(x) = (1+e^{-x})^{-1}\), un ReLU \(\xi(x) = \max{0,x}\)). Donc, la sortie \(x_k\) sera:
 \[\phi (x, W^1, \dots, W^K)=\xi_K(\xi_{K-1}(\dots \xi_1(xW^1)\dots W^{K-1})W^K)\]
