@@ -31,7 +31,7 @@ knitr::opts_chunk$set(fig.align = "center")
 
 # Introduction
 
-Le [Réseau neuronal convolutif][Réseau neuronal convolutif] (en anglais ***CNN***) est actuellement l'une des techniques 
+Le [réseau neuronal convolutif][Réseau neuronal convolutif] (en anglais ***CNN***) est actuellement l'une des techniques 
 les plus connues dans les problèmes de reconstruction d'image inverse.
 Ils se sont avérés efficace dans un grand nombre de tâches, y compris le débruitage d'image,
 la super-résolution d'image et la compression d'images avec perte.
@@ -54,32 +54,46 @@ Puis, nous approfondissons le principe sous-jacent de celui-ci à travers l'exem
 Enfin, nous expérimenterons ce que nous venons de présenter ci-dessus
 et ferons quelques études complémentaires.
 
+\newpage
+
+# Mathématiques et Deep Learning
+
 Tout d'abord, nous clarifierons certaines terminologies.
+
+## Les problèmes inverses
+Les problèmes inverses peuvent être formulés comme la tâche d’optimisation avec la formule:
+$$x^* = min_{x}E(x;x_{0}) + R(x)$$
+
+Le réseau neuronal convolutionnel va décoder et générer une fonction de type:
+$$x = f_{\theta}(z)$$
+qui correspond bien aux données. La fonction va lier un vecteur qui est donné au hasard avec une image $x$.
+La méthode est sélectionnée spécifiquement pour chaque application.
 
 ## Réseau neuronal convolutif
 
-Un réseau neuronal est l’association d’objets élémentaires, les neurones formels, interconnectés
-permettant la résolution de problèmes complexes
-tels que la reconnaissance des formes ou le traitement du langage naturel,
-grâce à l'ajustement des coefficients de pondération dans une phase d'apprentissage.
-Les principaux réseaux se distinguent par l’organisation du graphe (en couches, complets, $etc,$),
-c’est-à-dire leur architecture, son niveau de complexité
-(le nombre de neurones, présence ou non de boucles de rétroaction dans le réseau)
-par le type des neurones (leurs fonctions de transition ou d’activation)
-et enfin par l’objectif visé: apprentissage supervisé ou non, optimisation,
-systèmes dynamiques, $etc.$
+Un réseau neuronal est l’association d’objets élémentaires, les neurones formels, interconnectés permettant la résolution de problèmes complexes tels que la reconnaissance des formes ou le traitement du langage naturel,
+grâce à l'ajustement des coefficients de pondération dans une phase  d'apprentissage. Le réseau éxecute quelques opération avec les données. Pour chaque opération, familièrement appelée **layer**, consiste une transformation linéaire des données avec une fonction d'activation.
 
-Le premier modèle mathématique et informatique du neurone biologique est proposé par Warren McCulloch et Walter Pitts
-Dans le modèle de McCulloch et Pitts, à chaque entrée est associé une valeur numérique appelé le poids synaptique.
+\\Thêm cái ảnh ví dụ về CNN
+
+Le premier modèle mathématique et informatique du neurone biologique est proposé par Warren McCulloch et Walter Pitts. Dans le modèle de McCulloch et Pitts, à chaque entrée est associé une valeur numérique appelé le poids synaptique.
 Donc, nous pouvons écrire le neurone formel comme un modèle qui se caractérise par
 un état interne $s$ , des signaux d’entrée $x_{1}$, \dots,  $x_{p}$ avec les poids synaptique associé
 $\alpha_{1}$, \dots,  $\alpha_{p}$ et une fonction d’activation
 $$ s=h(x_{1},\dots,x_{p})=\phi(\alpha_{0} + \sum_{j=1}^{p} \alpha_{j}x_{j}) = \phi(\alpha_{0} + \alpha' x)$$
 
+Les principaux réseaux se distinguent par l’organisation du graphe (en couches, complets, $etc,$), c’est-à-dire leur architecture, son niveau de complexité (le nombre de neurones, présence ou non de boucles de rétroaction dans le réseau) par le type des neurones (leurs fonctions de transition ou d’activation) et enfin par l’objectif visé: apprentissage supervisé ou non, optimisation, systèmes dynamiques, $etc.$
+
+## Principles Mathématiques d'un réseau neuronal convulutif
+
+Soit $x \in R^{N \cdot D}$ un point de données tel que chaque colonne de $x$ est un $D$-dimensions point de données et $N$ le nombre de exemples à entrainer. Soit $W^k \in R^{d_{k-1} \cdot d_k}$ la matrice representant une transformation linéaire de la sortie de **layer** $k-1$ (soit $x_{k-1} \in R ^{Nd_{k-1}}$) pour obtenir une $d_k$-dimension $x_{k-1}W_{k} \in R^{N \cdot d_{k}}$
+
+Soit $\xi(x)$ une fonction d'activation non-linéaire (par exemple: une fonction sigmoïde $\xi(x) = (1+e^{-x})^{-1}$, un ReLU $\xi(x) = \max{0,x}$). Donc, la sortie $x_k$ sera:
+$$\phi (x, W^1, \dots, W^K)=\xi_K(\xi_{K-1}(\dots \xi_1(xW^1)\dots W^{K-1})W^K)$$
+
 La fonction d’activation opère une transformation d’une combinaison affine
 des signaux d’entrée, $\alpha_{0}$, terme constant, étant appelé le biais du neurone.
-Cette combinaison affine est déterminée par un vecteur de poids
-$[\alpha_{0},\dots,\alpha_{p}]$ associé à chaque neurone et dont les valeurs sont estimées dans la phase d’apprentissage.
+Cette combinaison affine est déterminée par un vecteur de poids $[\alpha_{0},\dots,\alpha_{p}]$ associé à chaque neurone et dont les valeurs sont estimées dans la phase d’apprentissage.
 Ils constituent la mémoire ou connaissance répartie du réseau.
 
 Un réseau de neurones convolutifs ou réseau de neurones à convolution
@@ -92,48 +106,50 @@ un empilement de couches (les combinaisons des neurones formels) de traitement:
 - La couche "entièrement connectée" (FC)
 - La couche de perte (LOSS)
 
-## Les problèmes inverses
-Les problèmes inverses peuvent être formulés comme la tâche d’optimisation avec la formule:
-$$x^* = min_{x}E(x;x_{0}) + R(x)$$
-
-Le réseau neuronal convolutionnel va décoder et générer une fonction de type:
-$$x = f_{\theta}(z)$$
-qui correspond bien aux données. La fonction va lier un vecteur qui est donné au hasard avec une image $x$.
-La méthode est sélectionnée spécifiquement pour chaque application.
+\newpage
 
 # Deep Image Prior
 
 ## Principles
 
 La technique ***Deep Image Prior*** a fait une percée dans la dans le contexte
-de problèmes inverses mal posés. Le réseau est connu pour le reconstruction d'image sans
-étape d'apprentissage. Nous allons étudier les principles dedans et comment cette technique fonctionne.
+de problèmes inverses mal posés. Le réseau est connu pour le reconstruction d'image sans étape d'apprentissage. Nous allons étudier les principles dedans et comment cette technique fonctionne.
 
 Normalement, le ***Deep learning*** aborde un problème par deux étapes. Premièrement, c'est l'étape d'apprentissage.
 Dans cette étape, le paramètre de réseau est optimisé par minimiser un approprié fonction de perte à partir de
 un grande ensemble de données. Puis, les nouvelles données est traité dans le réseau pour résoudre le problème.
 Néanmoins, la technique ***Deep Image Prior*** est basé seulement sur une seul point de données $y^\gamma$. C'est-à-dire
-la technique est d'entrainer un réseau avec son paramètre par minimiser la fonction de perte: $\min_{\xi} \mid\mid A\varphi_\xi(z) - y^\gamma \mid\mid^2$.
+la technique est d'entrainer un réseau avec son paramètre par minimiser la fonction de perte: $$\min_{\xi} \mid\mid A\varphi_\xi(z) - y^\gamma \mid\mid^2$$.
 
 Le resultat sur le réseau de ***Deep Prior*** utilise le feed-forward architecture qui commence par:
 \begin{center} $x^0 = z$    et    $x^{k+1} = \phi (W_k x^k + b_k)$ for $k = 0,...,L-1$  \end{center}
-Donc, les résultats obtenues sont $\varphi_\xi(z) = x^L$ avec les paramètres $\xi = \{W_0,...,W_{L-1},b_0,...,b_{L-1}\}$
+Donc, les résultats obtenues sont $$\varphi_\xi(z) = x^L$$ avec les paramètres $\xi = \{W_0,...,W_{L-1},b_0,...,b_{L-1}\}$.
 Pour la technique ***Deep Image Prior***, il n'y a pas d'étape d'apprentissage. Donc, $\xi$ n'est pas fixé.
-La solution pour le problème inverse est $x=\varphi_\xi(z)$ avec z fixé. La technique vise à paramétriser
-la solution avec $\xi$.
+La solution pour le problème inverse sera $$x=\varphi_\xi(z)$$ avec z fixé. La technique vise à paramétriser la solution avec $\xi$.
 
-## Méthode
+## Méthode appliquée
 
 Dans ce projet, nous cherchons à comprendre le fonctionnement de cette technique
 en utilisant le prieur implicitement capturé par le choix d’une structure de réseau de générateurs particulière.
-Nous avons mis un paramétrage $x = f_\theta(z)$ avec $x$ est un image de $R^{3xHeightxWidth}$ (une image colorée de taille
+Nous avons mis un paramétrage $$x = f_\theta(z)$$ avec $x$ est un image de $R^{3xHeightxWidth}$ (une image colorée de taille
 Height x Width pixels a chaque pixel un combinaison de 3 couleurs rouge, vert et bleu).
 Ici, $\theta$ sont des paramètres du réseau.
+
+Suite le travail, nous essayons d'aborder le problème de reconstruire une image $x$ d'une image endommagée $x_0$ suite une tâche de minimiser: $$\min_{x} E(x;x_0) + R(x)$$ où $E(x;x_0)$ est une fonction dépendant des données et $R(x)$ est une régularisation. Dans ce travail, nous essayons de prendre la régularisation $R(x)$ comme le prieur capturé par le réseau convolutif. L'idée est de prendre une approprié application surjective $$g: \theta \mapsto x$$ pour avoir: $$\min_{g(\theta)} E(g(\theta);x_0) + R(g(\theta))$$ pour éliminer le terme $R(x)$. Enfin, nous avons la formule: $$\min_{\theta} E(f_{\theta}(z);x_0)$$ avec $f_{\theta}$ est initialisé au hazard. 
+
+En utilisant un méthode d'optimisation (par exemple : descente de gradient), nous cherchons à minimiser le terme $\theta \rightarrow \theta^*$ :
+\begin {center} $\theta ^* = argmin_{\theta} E(f_{\theta}(z);x)$ et $x^* = f_{\theta^*}(z)$ \end {center}
+
+\newpage
 
 # Les aspects techniques
 Dans cette partie, nous proposons un résumé des différents aspects techniques de la techniques de DIP(ou Deep Image Prior).
 Cela nous aidera à établir une connexion entre les mathématiques et l'informatique plus facilement
 et fournira également des informations supplémentaires sur "Deep Image Prior".
+
+## Application sur le débruitage et reconstruction d'image
+
+Le but du débruitage est de reconstruire une image $x$ d'une image bruité $x_0$. Le modèle dégradé est parfois connu sur la forme : $x_0 = x + \epsilon$. En prenant $$ E(x;x_{0})= \mid\mid x - x_{0} \mid\mid^2 $$ nous avons un problème d'optimisation: $$ E(f_{\theta}(z);x_{0})= \mid\mid f_{\theta(z)} - x_{0} \mid\mid^2 $$
 
 ## Le code
 Tout d'abord, nous entrons dans le code. Comme indiqué ci-dessus, nous avons essayé de réécrire le code dans [@1711.10925].
@@ -178,9 +194,7 @@ Cela explique pourquoi si nous répétons le processus trop souvent, l'image de
 sortie tendra vers l'image bruité ou vers un résultat que nous n'attendons pas.
 
 Sous le capot, le décodeur est construit à partir d'opérations convolutives.
-En parcourant chaque pixel et en appliquant le noyau convolutif, nous pourrions extraire
-les fonctionnalités souhaitées. L'illustration d'une opération convolutive en image avec un $2 x 2$ kernel
-peut être vue comme suit:
+En parcourant chaque pixel et en appliquant le noyau convolutif, nous pourrions extraire les fonctionnalités souhaitées. L'illustration d'une opération convolutive en image avec un $2 x 2$ noyau peut être vue comme suit:
 $$\left(\begin{bmatrix}
   0 & 0 & 0 & 0 & 0\\
   0 & a & b & c & 0\\
@@ -207,7 +221,7 @@ les différences entre chaque étape de boucle pour avoir un mieux vue de notre
 algorithm.
 
 Voici notre image de test:
-```{r noisy-original-image, fig.cap="L'image originale et l'image bruité", fig.show="hold", out.width="25%", fig.subcap=c("original", "bruyant")}
+```{r noisy-original-image, fig.cap="L'image originale et l'image bruité", fig.show="hold", out.width="25%", fig.subcap=c("original", "bruité")}
 knitr::include_graphics("../res/denoising/input.png")
 knitr::include_graphics("../res/denoising/noisy.png")
 ```
@@ -225,20 +239,18 @@ Nous pouvions voir clairement les différences entre chaque epoche. Cela pourrai
 - A la première époque, l'entrée est un bruit aléatoire et le modèle est initialisé avec des poids aléatoires. Nous voyons donc une image aléatoire, qui n'est pas liée à la sortie souhaitée.
 - Vers la 1000e époque, les décodeurs à l'intérieur du modèle commencent à s'ajuster pour extraire les caractéristiques de l'image bruité. Premièrement, ils extraient les plus importants comme le bord, la couleur, la résolution, $etc.$
 - A la 3000ème époque, les décodeurs et encodeurs sont désormais capables d'extraire toutes les caractéristiques souhaitées et de reconstruire une image de sortie comme on le voit dans \@ref(fig:model-epoch-output).
-- Plus nous bouclons le processus, plus il y a de parties extraites et des caractéristiques indésirables comme le bruit sont également incluses. Par conséquent, nous voyons une image assez proche de l'image bruyante (\@ref(fig:noisy-original-image)).
+- Plus nous bouclons le processus, plus il y a de parties extraites et des caractéristiques indésirables comme le bruit sont également incluses. Par conséquent, nous voyons une image assez proche de l'image bruité (\@ref(fig:noisy-original-image)).
 
 Pour une vue plus scientifique, ce sont les métriques que nous avons utilisées lors de l'itération de ce modèle.
 
-D'après la figure \@ref(fig:model-psnr), il y a une tendance croissante dans le PSNR entre l'image débruitée et l'image bruyante. D'autre part, le PSNR entre celui-ci et l'image d'origine atteint son apogée vers 3000 epoches et commence à diminuer par la suite. Cela correspond à ce que nous avons vu auparavant en comparant différentes sorties avec nos yeux.
+D'après la figure \@ref(fig:model-psnr), il y a une tendance croissante dans le PSNR entre l'image débruitée et l'image bruité. D'autre part, le PSNR entre celui-ci et l'image d'origine atteint son apogée vers 3000 epoches et commence à diminuer par la suite. Cela correspond à ce que nous avons vu auparavant en comparant différentes sorties avec nos yeux.
 ```{r model-psnr, fig.cap="Le PSNR entre l'image débruitée et l'image", fig.show="hold", out.width="50%", fig.subcap=c("originale", "bruité")}
 knitr::include_graphics("../res/denoising/psnr_original.png")
 knitr::include_graphics("../res/denoising/psnr_noisy.png")
 ```
 
+\newpage
+
 # Conclusion
-Dans ce projet, nous avons étudié d'un nouvelle technique de traitement d'image.
-Cette technique n'a pas besoin quantité massive de données (un seul point de données $y^\gamma$)
-ni un modèle pre-entrainé (sans étape d'apprentissage). Nous avons testé différents modèles et données
-pour avoir un meilleur vue de fonctionnement de nos architecture et de la technique DIP.
-Ce que nous avons obtenu nous montre des résultats prometteurs.
+Dans ce projet, nous avons eu le chance de faire la connaissance avec le réseau neuronal convolutif, sa fonctionnement et sa application. Nous avons aussi étudié d'un nouvelle technique de traitement d'image. Cette technique n'a pas besoin quantité massive de données (un seul point de données $y^\gamma$) ni un modèle pre-entrainé (sans étape d'apprentissage). Nous avons testé différents modèles et données pour avoir un meilleur vue de fonctionnement de nos architecture et de la technique DIP. Ce que nous avons obtenu nous montre des résultats prometteurs.
 \newpage
