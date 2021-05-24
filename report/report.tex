@@ -212,14 +212,6 @@ un état interne \(s\) , des signaux d'entrée \(x_{1}\), \dots, \(x_{p}\) avec 
 
 Les principaux réseaux se distinguent par l'organisation du graphe (en couches, complets, \(etc,\)), c'est-à-dire leur architecture, son niveau de complexité (le nombre de neurones, présence ou non de boucles de rétroaction dans le réseau) par le type des neurones (leurs fonctions de transition ou d'activation) et enfin par l'objectif visé: apprentissage supervisé ou non, optimisation, systèmes dynamiques, \(etc.\)
 
-\hypertarget{principles-mathuxe9matiques-dun-ruxe9seau-neuronal-convulutif}{%
-\subsection{Principles Mathématiques d'un réseau neuronal convulutif}\label{principles-mathuxe9matiques-dun-ruxe9seau-neuronal-convulutif}}
-
-Soit \(x \in R^{N \cdot D}\) un point de données tel que chaque colonne de \(x\) est un \(D\)-dimensions point de données et \(N\) le nombre de exemples à entrainer. Soit \(W^k \in R^{d_{k-1} \cdot d_k}\) la matrice representant une transformation linéaire de la sortie de \textbf{layer} \(k-1\) (soit \(x_{k-1} \in R ^{Nd_{k-1}}\)) pour obtenir une \(d_k\)-dimension \(x_{k-1}W_{k} \in R^{N \cdot d_{k}}\)
-
-Soit \(\xi(x)\) une fonction d'activation non-linéaire (par exemple: une fonction sigmoïde \(\xi(x) = (1+e^{-x})^{-1}\), un ReLU \(\xi(x) = \max{0,x}\)). Donc, la sortie \(x_k\) sera:
-\[\phi (x, W^1, \dots, W^K)=\xi_K(\xi_{K-1}(\dots \xi_1(xW^1)\dots W^{K-1})W^K)\]
-
 La fonction d'activation opère une transformation d'une combinaison affine
 des signaux d'entrée, \(\alpha_{0}\), terme constant, étant appelé le biais du neurone.
 Cette combinaison affine est déterminée par un vecteur de poids \([\alpha_{0},\dots,\alpha_{p}]\) associé à chaque neurone et dont les valeurs sont estimées dans la phase d'apprentissage.
@@ -242,6 +234,20 @@ un empilement de couches (les combinaisons des neurones formels) de traitement:
 \item
   La couche de perte (LOSS)
 \end{itemize}
+
+\hypertarget{principles-mathuxe9matiques-dun-ruxe9seau-neuronal-convulutif}{%
+\subsection{Principles mathématiques d'un réseau neuronal convulutif}\label{principles-mathuxe9matiques-dun-ruxe9seau-neuronal-convulutif}}
+
+Soit \(x \in R^{N \cdot D}\) un point de données tel que chaque colonne de \(x\) est un \(D\)-dimensions point de données et \(N\) le nombre de exemples à entrainer. Soit \(W^k \in R^{d_{k-1} \cdot d_k}\) la matrice representant une transformation linéaire de la sortie de \textbf{layer} \(k-1\) (soit \(x_{k-1} \in R ^{Nd_{k-1}}\)) pour obtenir une \(d_k\)-dimension \(x_{k-1}W_{k} \in R^{N \cdot d_{k}}\)
+
+Soit \(\xi(x)\) une fonction d'activation non-linéaire (par exemple: une fonction sigmoïde \(\xi(x) = (1+e^{-x})^{-1}\), un ReLU \(\xi(x) = \max{0,x}\)). Donc, la sortie \(x_k\) sera:
+\[\phi (x, W^1, \dots, W^K)=\xi_K(\xi_{K-1}(\dots \xi_1(xW^1)\dots W^{K-1})W^K)\]
+
+\hypertarget{optimisation-globale}{%
+\subsection{Optimisation globale}\label{optimisation-globale}}
+
+Nous cherchons à aborder le problème d'apprendre les paramètres d'un réseau neuronal. Soit \$(X,Y) \(N\) exemples à entrainer. Sur le réglage de classification, chaque ligne de \$X \in R\^{}\{N \cdot D\} dénote un point de données dans \(R^D\) et chaque ligne de \$Y \in \{1,0\}\^{}\{N\cdot C\} dénote la cotisation de chaque point de données. Donc, nous cherchons à optimiser le problème d'apprendre le réseaux:
+\[\min_{{W^k}_{k=1}^K} l(Y,\phi(X,W^1,\dots,W^K))+\lambda \xi(W^1,\dots,W^K)\] avec \(l\) est la fonction de perte qui donne la conformité entre la sortie et le résultat prévu, \(\xi\) la fonction de régularisation désigné à éviter le surapprentissage et \(\lambda\) équilibre paramètres.
 
 \newpage
 
@@ -300,23 +306,21 @@ Le but du débruitage est de reconstruire une image \(x\) d'une image bruité \(
 \hypertarget{le-code}{%
 \subsection{Le code}\label{le-code}}
 
-Tout d'abord, nous entrons dans le code. Comme indiqué ci-dessus, nous avons essayé de réécrire le code dans \autocite{1711.10925}.
-Étant donné que chaque problème nécessite un modèle différent, nous nous concentrons uniquement sur le modèle de débruitage
+Tout d'abord, nous entrons dans le code dans \autocite{1711.10925}. Nous avons essayé d'appliquer le code pour quelques exemples et nous donne pas mal des résultats. Nous cherchons à comprendre chaque étape de transformation des données.
+
+Comme indiqué ci-dessus, nous avons essayé de réécrire le code dans \autocite{1711.10925}. Étant donné que chaque problème nécessite un modèle différent, nous nous concentrons uniquement sur le modèle de débruitage
 (bien que notre code devrait fonctionner avec la plupart des modèles de cet article).
 
-Outre la motivation de mieux comprendre le code, il y a
-quelques raisons techniques à nos motivations pour un réimplémentation.
-Nous le réécrivons à l'aide de TensorFlow, et nous ajoutons également
+Outre la motivation de mieux comprendre la fonctionnement de cette technique, il y a quelques raisons techniques à nos motivations pour un réimplémentation. Nous aimerions bien que nous pourrions travailler sur l'environement plus familière. Donc, nous le réécrivons à l'aide de TensorFlow, et nous ajoutons également
 des métriques supplémentaires pour mesurer le PSNR entre l'image
-débruitée et l'image bruité et le PSNR entre l'image débruitée etl'image originale.
+débruitée et l'image bruité et le PSNR entre l'image débruitée et l'image originale.
 
 \hypertarget{le-moduxe8les}{%
 \subsection{Le modèles}\label{le-moduxe8les}}
 
 Nous avons fait une architecture CNN très typique. Bien que le modèle dans \autocite{1711.10925}
 soit plus profond et ait beaucoup plus de couches, il a toujours le même groupe de couches
-qu'un auto-encodeur (\protect\hyperlink{duxe9codage-et-encodage}{décodage et encodage}) avec sauts de connexions. Notons qu'un décodeur soit suffit,
-nous avons aussi essayé d'écrire seulement un décodeur pur.
+qu'un auto-encodeur (\protect\hyperlink{duxe9codage-et-encodage}{décodage et encodage}) avec sauts de connexions. Notons qu'un décodeur soit suffit, nous avons aussi essayé d'écrire seulement un décodeur pur.
 
 L'entrée du modèle est un tenseur de forme \passthrough{\lstinline![batch\_size, image\_height, image\_width, 32]!} où \passthrough{\lstinline!batch\_size!} vaut 1 dans notre cas. 32 est le nombre de canaux (caractéristiques) qui seront expliqués plus tard. Sa sortie est un tenseur avec une forme de \passthrough{\lstinline![batch\_size, image\_height, image\_width, 3]!} qui pourrait être affiché comme une image (3 canaux car nous avons une image RGB (Red-Green-Blue)).
 
