@@ -398,7 +398,23 @@ Normalement, le \textbf{\emph{Deep learning}} aborde un problème par deux étap
 Dans cette étape, le paramètre de réseau est optimisé par minimiser un approprié fonction de perte à partir de
 un grande ensemble de données. Puis, les nouvelles données est traité dans le réseau pour résoudre le problème.
 Néanmoins, la technique \textbf{\emph{Deep Image Prior}} est basé seulement sur une seul point de données \(y^\gamma\). C'est-à-dire
-la technique est d'entrainer un réseau avec son paramètre par minimiser la fonction de perte: \[\min_{\xi} \mid\mid A\varphi_\xi(z) - y^\gamma \mid\mid^2\].
+la technique est d'entrainer un réseau avec son paramètre par minimiser la fonction de perte.
+
+Nous considérons un problème de reconstruction d'une image dégradée avec:
+
+\(x /rightarrow bonne image\)
+\(x_{0} /rightarrow image dégradée\)
+\(x^* /rightarrow l’image à sortie\)
+
+Dans \textbf{\emph{Deep Image Prior}}, l'auteur tente de combler le fossé entre deux méthodes populaires en construisant un nouveau préalable explicite en utilisant un réseau de neurones convolutif. Nous pouvons utiliser la distribution a posteriori maximale pour estimer la valeur non observée à partir des données empiriques:
+\[x^* = argmax (x_{0}\mid x)\]
+En utilisant le Bayesian rule nous obtenons:
+\[p(x\mid x_{0}) = \frac{p(x_{0}\mid x) p(x)} {p{x_0}} \alpha p(x_{0}\mid x) p(x)\]
+Au lieu de travailler séparément avec les distributions, nous pouvons formuler l'équation sous forme de problème d'optimisation:
+\[x^* = arg max p(x_{0}\mid x) = arg min - log p(x_{0} \mid x) - log p(x) = arg min E(x;x_{0}) +R(x)\] avec \(E(x;x_{0})\) est le terme de données et \(R(x)\) est l'image de \(p(x)\)
+Donc, le problème est de minimiser:
+
+\[\min_{\xi} \mid\mid A\varphi_\xi(z) - y^\gamma \mid\mid^2\].
 
 Le resultat sur le réseau de \textbf{\emph{Deep Prior}} utilise le feed-forward architecture qui commence par:
 
@@ -427,6 +443,13 @@ En utilisant un méthode d'optimisation (par exemple : descente de gradient), no
 \subsection{Application sur le débruitage et reconstruction d'image}\label{application-sur-le-duxe9bruitage-et-reconstruction-dimage}}
 
 Le but du débruitage est de reconstruire une image \(x\) d'une image bruité \(x_0\). Le modèle dégradé est parfois connu sur la forme : \(x_0 = x + \epsilon\). En prenant \[ E(x;x_{0})= \mid\mid x - x_{0} \mid\mid^2 \] nous avons un problème d'optimisation: \[ E(f_{\theta}(z);x_{0})= \mid\mid f_{\theta(z)} - x_{0} \mid\mid^2 \]
+
+\newpage
+
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
+
+Dans ce projet, nous avons eu le chance de faire la connaissance avec le réseau neuronal convolutif, sa fonctionnement et sa application. Nous avons aussi étudié d'un nouvelle technique de traitement d'image. Cette technique n'a pas besoin quantité massive de données (un seul point de donnée) ni un modèle pre-entrainé (sans étape d'apprentissage). Nous avons testé différents modèles et données pour avoir un meilleur vue de fonctionnement de nos architecture et de la technique DIP. Ce que nous avons obtenu nous montre des résultats prometteurs. Grâce à de nombreuses études inspirées par cette technique, nous espérons que le traitement de l'image à l'avenir sera plus rapide et plus efficace.
 
 \newpage
 
